@@ -31,14 +31,7 @@
             }
         }
     </script>
-    <!-- Google Fonts & FontAwesome -->
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- SDK de Firebase en la nube -->
-    <script type="module">
-      // Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
+ tializeApp } from "firebase/app";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -56,27 +49,58 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 
 
-        // Inicializar Firebase y Firestore
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const perfumesRef = collection(db, "perfumes");
+        // Inic   <!-- Google Fonts & FontAwesome -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- SDK de Firebase en la nube -->
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+      import { 
+        getFirestore, 
+        collection, 
+        addDoc, 
+        deleteDoc, 
+        doc, 
+        query, 
+        orderBy, 
+        onSnapshot 
+      } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        window.db = db;
-        window.perfumesRef = perfumesRef;
-        window.addDoc = addDoc;
-        window.deleteDoc = deleteDoc;
-        window.doc = doc;
+      // Configuración de tu proyecto Firebase
+      const firebaseConfig = {
+        apiKey: "AIzaSyAPWmxhRSHjSjGYRLdNbsoZNJiQf0UfWfw",
+        authDomain: "catalogo-a62b9.firebaseapp.com",
+        projectId: "catalogo-a62b9",
+        storageBucket: "catalogo-a62b9.firebasestorage.app",
+        messagingSenderId: "475533436537",
+        appId: "1:475533436537:web:b1c4b258994a2cf20316a8"
+      };
 
-        // Escuchar cambios en tiempo real desde la nube
-        const q = query(perfumesRef, orderBy("createdAt", "desc"));
-        onSnapshot(q, (snapshot) => {
-            const products = [];
-            snapshot.forEach((docSnap) => {
-                products.push({ id: docSnap.id, ...docSnap.data() });
-            });
-            window.products = products;
-            window.renderProducts();
-        });
+      // Inicializar Firebase y Firestore
+      const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app);
+      const perfumesRef = collection(db, "perfumes");
+
+      // Asignar al objeto global window para que lo usen las demás funciones
+      window.db = db;
+      window.perfumesRef = perfumesRef;
+      window.addDoc = addDoc;
+      window.deleteDoc = deleteDoc;
+      window.doc = doc;
+
+      // Escuchar cambios en tiempo real desde Firestore
+      const q = query(perfumesRef, orderBy("createdAt", "desc"));
+      onSnapshot(q, (snapshot) => {
+          const products = [];
+          snapshot.forEach((docSnap) => {
+              products.push({ id: docSnap.id, ...docSnap.data() });
+          });
+          window.products = products;
+          if (typeof window.renderProducts === 'function') {
+              window.renderProducts();
+          }
+      });
     </script>
 </head>
 <body class="bg-darkBg text-gray-100 min-h-screen flex flex-col selection:bg-gold-500 selection:text-black">
