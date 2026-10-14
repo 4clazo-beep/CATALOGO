@@ -31,25 +31,7 @@
             }
         }
     </script>
- tializeApp } from "firebase/app";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyAPWmxhRSHjSjGYRLdNbsoZNJiQf0UfWfw",
-  authDomain: "catalogo-a62b9.firebaseapp.com",
-  projectId: "catalogo-a62b9",
-  storageBucket: "catalogo-a62b9.firebasestorage.app",
-  messagingSenderId: "475533436537",
-  appId: "1:475533436537:web:b1c4b258994a2cf20316a8"
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-
-
-        // Inic   <!-- Google Fonts & FontAwesome -->
+    <!-- Google Fonts & FontAwesome -->
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -314,16 +296,21 @@ const app = initializeApp(firebaseConfig);
             const fileInput = document.getElementById('pImageFile');
 
             const uploadData = async (imgSrc) => {
-                await window.addDoc(window.perfumesRef, {
-                    name,
-                    category,
-                    price,
-                    desc,
-                    image: imgSrc || 'https://placehold.co/400x400/13131a/c58e2b?text=Perfume',
-                    createdAt: Date.now()
-                });
-                alert(" Perfume publicado en vivo en la nube.");
-                e.target.reset();
+                try {
+                    await window.addDoc(window.perfumesRef, {
+                        name,
+                        category,
+                        price,
+                        desc,
+                        image: imgSrc || 'https://placehold.co/400x400/13131a/c58e2b?text=Perfume',
+                        createdAt: Date.now()
+                    });
+                    alert("Perfume publicado en vivo en la nube.");
+                    e.target.reset();
+                } catch (error) {
+                    console.error("Error al guardar:", error);
+                    alert("Hubo un error al guardar en Firebase. Revisa que la imagen no sea demasiado pesada.");
+                }
             };
 
             if (fileInput.files && fileInput.files[0]) {
