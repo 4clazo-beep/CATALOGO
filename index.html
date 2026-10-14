@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Élixir & Lumière - Catálogo de Perfumería</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        gold: {
+                            300: '#dfbd72',
+                            400: '#d4a347',
+                            500: '#c58e2b',
+                            600: '#aa7220',
+                            900: '#5c3a1c',
+                            950: '#331e0e',
+                        },
+                        darkBg: '#0b0b0f',
+                        cardBg: '#13131a'
+                    },
+                    fontFamily: {
+                        serif: ['Playfair Display', 'serif'],
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts & FontAwesome -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- SDK de Firebase en la nube -->
+    <script type="module">
+      // Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyAPWmxhRSHjSjGYRLdNbsoZNJiQf0UfWfw",
+  authDomain: "catalogo-a62b9.firebaseapp.com",
+  projectId: "catalogo-a62b9",
+  storageBucket: "catalogo-a62b9.firebasestorage.app",
+  messagingSenderId: "475533436537",
+  appId: "1:475533436537:web:b1c4b258994a2cf20316a8"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+
+
+        // Inicializar Firebase y Firestore
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const perfumesRef = collection(db, "perfumes");
+
+        window.db = db;
+        window.perfumesRef = perfumesRef;
+        window.addDoc = addDoc;
+        window.deleteDoc = deleteDoc;
+        window.doc = doc;
+
+        // Escuchar cambios en tiempo real desde la nube
+        const q = query(perfumesRef, orderBy("createdAt", "desc"));
+        onSnapshot(q, (snapshot) => {
+            const products = [];
+            snapshot.forEach((docSnap) => {
+                products.push({ id: docSnap.id, ...docSnap.data() });
+            });
+            window.products = products;
+            window.renderProducts();
+        });
+    </script>
+</head>
+<body class="bg-darkBg text-gray-100 min-h-screen flex flex-col selection:bg-gold-500 selection:text-black">
+
+    <!-- Header / Navegación -->
+    <header class="sticky top-0 z-40 backdrop-blur-md bg-darkBg/80 border-b border-gold-900/30">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <!-- Tocar el Logo activa la clave de administrador 1106 -->
+            <div onclick="promptAdminAccess()" class="flex items-center space-x-3 cursor-pointer group" title="Acceso Administrador">
+                <div class="w-10 h-10 rounded-full border border-gold-500/50 flex items-center justify-center bg-gold-950/30 text-gold-400 group-hover:border-gold-400 shadow-[0_0_15px_rgba(197,142,43,0.2)]">
+                    <i class="fa-solid fa-gem text-lg"></i>
+                </div>
+                <div>
+                    <span class="text-xs uppercase tracking-[0.25em] text-gold-400 block font-semibold">Haute Parfumerie</span>
+                    <h1 class="text-xl sm:text-2xl font-serif tracking-wider text-white group-hover:text-gold-300">ÉLIXIR & LUMIÈRE</h1>
+                </div>
+            </div>
+
+            <!-- Botón del Panel Admin Oculto -->
+            <div id="adminBadge" class="hidden">
+                <button onclick="openModal('adminPanelModal')" class="bg-gradient-to-r from-gold-600 to-gold-500 text-black font-semibold text-xs px-4 py-2.5 rounded-full shadow-lg flex items-center space-x-2">
+                    <i class="fa-solid fa-lock-open"></i>
+                    <span>Panel de Control</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="relative py-12 text-center bg-gradient-to-b from-cardBg/40 to-darkBg border-b border-gold-900/20">
+        <div class="max-w-7xl mx-auto px-4">
+            <span class="text-gold-400 uppercase tracking-[0.3em] text-xs font-semibold block mb-2">Colección Exclusiva</span>
+            <h2 class="text-3xl sm:text-5xl font-serif mb-4 text-white">Catálogo de Fragancias</h2>
+            
+            <!-- Buscador y Filtros -->
+            <div class="max-w-2xl mx-auto flex flex-col sm:flex-row gap-2 bg-cardBg p-2 rounded-2xl border border-gold-900/40">
+                <input type="text" id="searchInput" oninput="renderProducts()" placeholder="Buscar por nombre o descripción..." class="w-full bg-transparent px-4 py-2 text-sm text-gray-200 focus:outline-none">
+                <select id="sortBy" onchange="renderProducts()" class="bg-transparent px-4 py-2 text-sm text-gray-300 cursor-pointer">
+                    <option value="newest" class="bg-cardBg text-white">Más Recientes</option>
+                    <option value="price-asc" class="bg-cardBg text-white">Precio: Menor a Mayor</option>
+                    <option value="price-desc" class="bg-cardBg text-white">Precio: Mayor a Menor</option>
+                </select>
+            </div>
+        </div>
+    </section>
+
+    <!-- Categorías -->
+    <nav class="max-w-7xl mx-auto px-4 py-6">
+        <div class="flex space-x-2 overflow-x-auto" id="categoryTabs">
+            <button onclick="setCategory('Todos')" class="category-btn px-5 py-2 rounded-full text-xs font-medium bg-gold-500 text-black" data-cat="Todos">Todos</button>
+            <button onclick="setCategory('Unisex')" class="category-btn px-5 py-2 rounded-full text-xs font-medium bg-cardBg text-gray-400 border border-gold-900/30" data-cat="Unisex">Unisex</button>
+            <button onclick="setCategory('Femenino')" class="category-btn px-5 py-2 rounded-full text-xs font-medium bg-cardBg text-gray-400 border border-gold-900/30" data-cat="Femenino">Femenino</button>
+            <button onclick="setCategory('Masculino')" class="category-btn px-5 py-2 rounded-full text-xs font-medium bg-cardBg text-gray-400 border border-gold-900/30" data-cat="Masculino">Masculino</button>
+        </div>
+    </nav>
+
+    <!-- Grilla de Productos -->
+    <main class="max-w-7xl mx-auto px-4 pb-20 flex-1 w-full">
+        <div id="productGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+        <div id="emptyState" class="hidden text-center py-16 text-gray-500 text-sm">No hay fragancias disponibles en este momento.</div>
+    </main>
+
+    <!-- Modal Admin Oculto: Agregar y Eliminar Productos -->
+    <div id="adminPanelModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm hidden">
+        <div class="bg-cardBg border border-gold-900/50 rounded-3xl max-w-2xl w-full p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+            <button onclick="closeModal('adminPanelModal')" class="absolute top-6 right-6 text-gray-400 hover:text-white">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+
+            <h3 class="text-2xl font-serif text-white mb-4">Administración del Catálogo</h3>
+
+            <!-- Formulario de Agregar -->
+            <form onsubmit="handleFormSubmit(event)" class="space-y-3 mb-8 bg-darkBg/60 p-4 rounded-2xl border border-gold-900/30">
+                <h4 class="text-sm font-semibold text-gold-400 uppercase tracking-wider">Añadir Nuevo Perfume</h4>
+                <input type="text" id="pName" required placeholder="Nombre del perfume" class="w-full bg-darkBg border border-gold-900/40 rounded-xl px-3 py-2 text-sm text-gray-200">
+                
+                <div class="grid grid-cols-2 gap-3">
+                    <select id="pCategory" class="bg-darkBg border border-gold-900/40 rounded-xl px-3 py-2 text-sm text-gray-200">
+                        <option value="Femenino">Femenino</option>
+                        <option value="Masculino">Masculino</option>
+                        <option value="Unisex">Unisex</option>
+                    </select>
+                    <input type="number" id="pPrice" step="0.01" min="0" required placeholder="Precio ($)" class="bg-darkBg border border-gold-900/40 rounded-xl px-3 py-2 text-sm text-gray-200">
+                </div>
+
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">Imagen desde el dispositivo:</label>
+                    <input type="file" id="pImageFile" accept="image/*" class="w-full text-xs text-gray-400 border border-gold-900/40 rounded-xl p-2 bg-darkBg">
+                </div>
+
+                <textarea id="pDesc" rows="2" required placeholder="Descripción y notas olfativas..." class="w-full bg-darkBg border border-gold-900/40 rounded-xl px-3 py-2 text-sm text-gray-200 resize-none"></textarea>
+                
+                <button type="submit" class="w-full bg-gold-500 text-black font-semibold py-2.5 rounded-xl text-sm">
+                    Guardar Perfume en la Nube
+                </button>
+            </form>
+
+            <!-- Lista de Eliminación -->
+            <h4 class="text-sm font-semibold text-red-400 uppercase tracking-wider mb-2">Eliminar Artículos Existentes</h4>
+            <div id="adminProductList" class="space-y-2"></div>
+        </div>
+    </div>
+
+    <script>
+        window.products = [];
+        let currentCategory = 'Todos';
+
+        function promptAdminAccess() {
+            const pin = prompt("Ingrese el PIN de Administrador:");
+            if (pin === "1106") {
+                document.getElementById('adminBadge').classList.remove('hidden');
+                openModal('adminPanelModal');
+                renderAdminList();
+            } else if (pin !== null) {
+                alert("PIN incorrecto.");
+            }
+        }
+
+        function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+        function setCategory(cat) {
+            currentCategory = cat;
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.className = btn.dataset.cat === cat 
+                    ? 'category-btn px-5 py-2 rounded-full text-xs font-medium bg-gold-500 text-black'
+                    : 'category-btn px-5 py-2 rounded-full text-xs font-medium bg-cardBg text-gray-400 border border-gold-900/30';
+            });
+            renderProducts();
+        }
+
+        function renderProducts() {
+            const grid = document.getElementById('productGrid');
+            const searchVal = document.getElementById('searchInput').value.toLowerCase();
+            const sortBy = document.getElementById('sortBy').value;
+
+            let filtered = window.products.filter(p => {
+                const matchesCat = currentCategory === 'Todos' || p.category === currentCategory;
+                const matchesSearch = p.name.toLowerCase().includes(searchVal) || p.desc.toLowerCase().includes(searchVal);
+                return matchesCat && matchesSearch;
+            });
+
+            filtered.sort((a, b) => {
+                if (sortBy === 'price-asc') return a.price - b.price;
+                if (sortBy === 'price-desc') return b.price - a.price;
+                return b.createdAt - a.createdAt;
+            });
+
+            grid.innerHTML = '';
+            if (filtered.length === 0) {
+                document.getElementById('emptyState').classList.remove('hidden');
+                return;
+            } else {
+                document.getElementById('emptyState').classList.add('hidden');
+            }
+
+            filtered.forEach(p => {
+                const waMessage = encodeURIComponent(`Hola, me interesa adquirir la fragancia "${p.name}" por $${p.price}. ¿Está disponible?`);
+                const card = document.createElement('div');
+                card.className = 'bg-cardBg border border-gold-900/30 rounded-2xl overflow-hidden p-4 flex flex-col justify-between';
+                card.innerHTML = `
+                    <div>
+                        <img src="${p.image}" alt="${p.name}" class="w-full h-60 object-cover rounded-xl mb-3" onerror="this.src='https://placehold.co/400x400/13131a/c58e2b?text=Perfume'">
+                        <span class="text-[10px] text-gold-400 uppercase tracking-widest">${p.category}</span>
+                        <h3 class="text-lg font-serif text-white mt-1">${p.name}</h3>
+                        <p class="text-gray-400 text-xs mt-1 line-clamp-2">${p.desc}</p>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-gold-900/20 flex items-center justify-between">
+                        <span class="text-white font-serif text-base">$${Number(p.price).toFixed(2)}</span>
+                        <a href="https://wa.me/?text=${waMessage}" target="_blank" class="bg-[#25d366]/20 text-[#25d366] px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center space-x-1">
+                            <i class="fa-brands fa-whatsapp"></i><span>Pedir</span>
+                        </a>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+
+            renderAdminList();
+        }
+
+        function renderAdminList() {
+            const adminList = document.getElementById('adminProductList');
+            if (!adminList) return;
+            adminList.innerHTML = '';
+
+            window.products.forEach(p => {
+                const row = document.createElement('div');
+                row.className = 'flex items-center justify-between bg-darkBg p-2 rounded-xl border border-gold-900/20';
+                row.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <img src="${p.image}" class="w-10 h-10 object-cover rounded-lg">
+                        <div>
+                            <p class="text-xs font-semibold text-white">${p.name}</p>
+                            <span class="text-[10px] text-gold-400">$${p.price}</span>
+                        </div>
+                    </div>
+                    <button onclick="deleteProduct('${p.id}')" class="text-red-400 hover:text-red-300 text-xs px-2 py-1 bg-red-950/40 rounded-lg">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                `;
+                adminList.appendChild(row);
+            });
+        }
+
+        async function handleFormSubmit(e) {
+            e.preventDefault();
+            const name = document.getElementById('pName').value.trim();
+            const category = document.getElementById('pCategory').value;
+            const price = parseFloat(document.getElementById('pPrice').value);
+            const desc = document.getElementById('pDesc').value.trim();
+            const fileInput = document.getElementById('pImageFile');
+
+            const uploadData = async (imgSrc) => {
+                await window.addDoc(window.perfumesRef, {
+                    name,
+                    category,
+                    price,
+                    desc,
+                    image: imgSrc || 'https://placehold.co/400x400/13131a/c58e2b?text=Perfume',
+                    createdAt: Date.now()
+                });
+                alert(" Perfume publicado en vivo en la nube.");
+                e.target.reset();
+            };
+
+            if (fileInput.files && fileInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = (event) => uploadData(event.target.result);
+                reader.readAsDataURL(fileInput.files[0]);
+            } else {
+                uploadData(null);
+            }
+        }
+
+        async function deleteProduct(id) {
+            if (confirm("¿Deseas eliminar este perfume de la nube?")) {
+                await window.deleteDoc(window.doc(window.db, "perfumes", id));
+            }
+        }
+    </script>
+</body>
+</html>
