@@ -122,11 +122,17 @@
         <div class="max-w-7xl mx-auto px-4">
             <span class="text-gold-400 uppercase tracking-[0.3em] text-xs font-semibold block mb-2">Colección Exclusiva</span>
             <h2 class="text-3xl sm:text-5xl font-serif mb-4 text-white">Catálogo de Fragancias</h2>
-            <!-- Mensaje Elegante Rotativo sobre Perfumería -->
-            <div class="max-w-xl mx-auto mb-6 px-4 py-3 rounded-2xl bg-gradient-to-r from-gold-950/60 via-cardBg/80 to-gold-950/60 border border-gold-500/30 shadow-[0_0_20px_rgba(197,142,43,0.1)] backdrop-blur-sm transition-all duration-700">
-                <p id="perfumeQuote" class="text-gold-300 font-serif italic text-xs sm:text-sm tracking-wide text-center">
-                    "El perfume es el accesorio invisible definitivo y el más inolvidable."
-                </p>
+           <!-- Mensaje Profesional de Alto Impacto (Imposible de no notar) -->
+            <div class="max-w-2xl mx-auto mb-6 px-6 py-4 rounded-2xl bg-gradient-to-r from-gold-950 via-cardBg to-gold-950 border-2 border-gold-400 shadow-[0_0_30px_rgba(212,163,71,0.35)] backdrop-blur-md relative overflow-hidden transition-all duration-1000">
+                <!-- Destello visual decorativo superior -->
+                <div class="absolute inset-0 bg-[linear-gradient(90deg,transparent,rgba(212,163,71,0.15),transparent)] animate-pulse pointer-events-none"></div>
+                <div class="flex items-center justify-center space-x-3">
+                    <i class="fa-solid fa-sparkles text-gold-400 text-base animate-bounce"></i>
+                    <p id="perfumeQuote" class="text-gold-200 font-serif font-medium italic text-sm sm:text-base tracking-wide text-center transition-opacity duration-700 ease-in-out opacity-100 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+                        "El perfume anuncia la llegada de una mujer y deja su recuerdo cuando se va." – Coco Chanel
+                    </p>
+                    <i class="fa-solid fa-sparkles text-gold-400 text-base animate-bounce"></i>
+                </div>
             </div>
             <!-- Buscador y Filtros -->
             <div class="max-w-2xl mx-auto flex flex-col sm:flex-row gap-2 bg-cardBg p-2 rounded-2xl border border-gold-900/40">
@@ -169,14 +175,14 @@
             <form onsubmit="handleFormSubmit(event)" class="space-y-3 mb-8 bg-darkBg/60 p-4 rounded-2xl border border-gold-900/30">
                 <h4 class="text-sm font-semibold text-gold-400 uppercase tracking-wider">Añadir Nuevo Perfume</h4>
                 <input type="text" id="pName" required placeholder="Nombre del perfume" class="w-full bg-darkBg border border-gold-900/40 rounded-xl px-3 py-2 text-sm text-gray-200">
-                
-                <div class="grid grid-cols-2 gap-3">
+                <div class="grid grid-cols-3 gap-2">
                     <select id="pCategory" class="bg-darkBg border border-gold-900/40 rounded-xl px-3 py-2 text-sm text-gray-200">
                         <option value="Femenino">Femenino</option>
                         <option value="Masculino">Masculino</option>
                         <option value="Unisex">Unisex</option>
                     </select>
                     <input type="number" id="pPrice" step="0.01" min="0" required placeholder="Precio ($)" class="bg-darkBg border border-gold-900/40 rounded-xl px-3 py-2 text-sm text-gray-200">
+                    <input type="number" id="pStock" min="0" value="1" required placeholder="Unidades" class="bg-darkBg border border-gold-900/40 rounded-xl px-3 py-2 text-sm text-gray-200" title="Unidades disponibles">
                 </div>
 
                 <div>
@@ -264,22 +270,37 @@ const perfumeQuotes = [
     "«El arte de la perfumería es darle forma visible al alma a través de los sentidos.»"
 ];
 
-// Seleccionar un mensaje aleatorio cada vez que se abre o recarga el catálogo
-function loadRandomQuote() {
+/// Rotación automática de mensajes aleatorios con animación de desvanecimiento cada 15 segundos
+function initQuoteRotator() {
     const quoteElement = document.getElementById('perfumeQuote');
     if (!quoteElement) return;
-    const randomIndex = Math.floor(Math.random() * perfumeQuotes.length);
-    quoteElement.style.opacity = 0;
-    setTimeout(() => {
-        quoteElement.textContent = perfumeQuotes[randomIndex];
-        quoteElement.style.opacity = 1;
-        quoteElement.style.transition = "opacity 0.5s ease-in-out";
-    }, 200);
+
+    // Ejecutar de inmediato al cargar
+    setRandomQuote(quoteElement);
+
+    // Cambiar automáticamente cada 15 segundos (15000 milisegundos)
+    setInterval(() => {
+        // Paso 1: Desvanecer hacia abajo la opacidad (Fade Out)
+        quoteElement.style.opacity = 0;
+        
+        setTimeout(() => {
+            // Paso 2: Cambiar el texto de manera aleatoria mientras está oculto
+            const randomIndex = Math.floor(Math.random() * perfumeQuotes.length);
+            quoteElement.textContent = perfumeQuotes[randomIndex];
+            
+            // Paso 3: Aparecer suavemente con animación (Fade In)
+            quoteElement.style.opacity = 1;
+        }, 700); // Tiempo sincronizado con la transición CSS
+    }, 15000);
 }
 
-// Ejecutar al cargar la página
-document.addEventListener('DOMContentLoaded', loadRandomQuote);
+function setRandomQuote(element) {
+    const randomIndex = Math.floor(Math.random() * perfumeQuotes.length);
+    element.textContent = perfumeQuotes[randomIndex];
+}
 
+// Iniciar el rotador al cargar la página
+document.addEventListener('DOMContentLoaded', initQuoteRotator);
 let currentBgIndex = 0;
 let activeSlide = 1;
 
@@ -368,15 +389,21 @@ document.addEventListener('DOMContentLoaded', initBackgroundSlider);
                 document.getElementById('emptyState').classList.add('hidden');
             }
 
-            filtered.forEach(p => {
-              const waMessage = encodeURIComponent(`Hola, me interesa adquirir la fragancia "${p.name}" por $${Number(p.price).toLocaleString('es-CO')}. ¿Está disponible?`);
+           filtered.forEach(p => {
+              const stockCount = p.stock !== undefined ? p.stock : 1;
+              const stockBadge = stockCount > 0 
+                  ? `<span class="text-[10px] bg-gold-950/80 text-gold-300 border border-gold-500/30 px-2 py-0.5 rounded-full"><i class="fa-solid fa-box mr-1"></i>Disponibles: <strong>${stockCount}</strong></span>`
+                  : `<span class="text-[10px] bg-red-950/80 text-red-400 border border-red-500/30 px-2 py-0.5 rounded-full">Agotado</span>`;
+
+              const waMessage = encodeURIComponent(`Hola, me interesa adquirir la fragancia "${p.name}" (Unidades disponibles: ${stockCount}) por $${Number(p.price).toLocaleString('es-CO')}. ¿Está disponible?`);
                 const card = document.createElement('div');
                 card.className = 'bg-cardBg border border-gold-900/30 rounded-2xl overflow-hidden p-4 flex flex-col justify-between';
                 card.innerHTML = `
                     <div>
-                        <div class="w-full h-60 bg-black/40 rounded-xl mb-3 flex items-center justify-center overflow-hidden p-2 border border-gold-900/10">
-    <img src="${p.image}" alt="${p.name}" class="max-h-full max-w-full object-contain" onerror="this.src='https://placehold.co/400x400/13131a/c58e2b?text=Perfume'">
-</div>
+                        <div class="w-full h-60 bg-black/40 rounded-xl mb-3 flex items-center justify-center overflow-hidden p-2 border border-gold-900/10 relative">
+                            <img src="${p.image}" alt="${p.name}" class="max-h-full max-w-full object-contain" onerror="this.src='https://placehold.co/400x400/13131a/c58e2b?text=Perfume'">
+                            <div class="absolute top-2 right-2">${stockBadge}</div>
+                        </div>
                         <span class="text-[10px] text-gold-400 uppercase tracking-widest">${p.category}</span>
                         <h3 class="text-lg font-serif text-white mt-1">${p.name}</h3>
                         <p class="text-gray-400 text-xs mt-1 line-clamp-2">${p.desc}</p>
@@ -394,24 +421,37 @@ document.addEventListener('DOMContentLoaded', initBackgroundSlider);
             renderAdminList();
         }
 
-        function renderAdminList() {
+      function renderAdminList() {
             const adminList = document.getElementById('adminProductList');
             if (!adminList) return;
             adminList.innerHTML = '';
 
             window.products.forEach(p => {
+                const currentStock = p.stock !== undefined ? p.stock : 1;
                 const row = document.createElement('div');
-                row.className = 'flex items-center justify-between bg-darkBg p-2 rounded-xl border border-gold-900/20';
+                row.className = 'bg-darkBg p-3 rounded-xl border border-gold-900/20 space-y-2';
                 row.innerHTML = `
-                   <div class="w-10 h-10 bg-black/40 rounded-lg flex items-center justify-center overflow-hidden p-1">
-    <img src="${p.image}" class="max-h-full max-w-full object-contain">
-</div>
-                            <p class="text-xs font-semibold text-white">${p.name}</p>
-                          <span class="text-[10px] text-gold-400">$${Number(p.price).toLocaleString('es-CO')}</span>
+                    <div class="flex items-center justify-between gap-2">
+                        <div class="w-10 h-10 bg-black/40 rounded-lg flex items-center justify-center overflow-hidden p-1 flex-shrink-0">
+                            <img src="${p.image}" class="max-h-full max-w-full object-contain">
+                        </div>
+                        <input type="text" id="edit-name-${p.id}" value="${p.name}" class="w-full bg-cardBg border border-gold-900/40 rounded-lg px-2 py-1 text-xs text-white">
+                        <button onclick="deleteProduct('${p.id}')" class="text-red-400 hover:text-red-300 text-xs px-2.5 py-1.5 bg-red-950/40 rounded-lg flex-shrink-0" title="Eliminar artículo">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-[9px] text-gray-400">Precio ($)</label>
+                            <input type="number" id="edit-price-${p.id}" step="0.01" value="${p.price}" class="w-full bg-cardBg border border-gold-900/40 rounded-lg px-2 py-1 text-xs text-gold-300">
+                        </div>
+                        <div>
+                            <label class="block text-[9px] text-gray-400">Stock / Unidades</label>
+                            <input type="number" id="edit-stock-${p.id}" min="0" value="${currentStock}" class="w-full bg-cardBg border border-gold-900/40 rounded-lg px-2 py-1 text-xs text-gold-300">
                         </div>
                     </div>
-                    <button onclick="deleteProduct('${p.id}')" class="text-red-400 hover:text-red-300 text-xs px-2 py-1 bg-red-950/40 rounded-lg">
-                        <i class="fa-solid fa-trash"></i>
+                    <button onclick="updateProduct('${p.id}')" class="w-full bg-gold-600 hover:bg-gold-500 text-black font-semibold py-1.5 rounded-lg text-xs mt-1 transition-colors">
+                        <i class="fa-solid fa-floppy-disk mr-1"></i> Guardar Cambios
                     </button>
                 `;
                 adminList.appendChild(row);
@@ -455,6 +495,7 @@ document.addEventListener('DOMContentLoaded', initBackgroundSlider);
             const name = document.getElementById('pName').value.trim();
             const category = document.getElementById('pCategory').value;
             const price = parseFloat(document.getElementById('pPrice').value);
+            const stock = parseInt(document.getElementById('pStock').value) || 1;
             const desc = document.getElementById('pDesc').value.trim();
             const fileInput = document.getElementById('pImageFile');
 
@@ -470,6 +511,7 @@ document.addEventListener('DOMContentLoaded', initBackgroundSlider);
                     name,
                     category,
                     price,
+                    stock,
                     desc,
                     image: imageUrl,
                     createdAt: Date.now()
@@ -489,6 +531,33 @@ document.addEventListener('DOMContentLoaded', initBackgroundSlider);
         async function deleteProduct(id) {
             if (confirm("¿Deseas eliminar este perfume de la nube?")) {
                 await window.deleteDoc(window.doc(window.db, "perfumes", id));
+            }
+        }
+        async function updateProduct(id) {
+            const newName = document.getElementById(`edit-name-${id}`).value.trim();
+            const newPrice = parseFloat(document.getElementById(`edit-price-${id}`).value);
+            const newStock = parseInt(document.getElementById(`edit-stock-${id}`).value);
+
+            if (!newName || isNaN(newPrice) || isNaN(newStock)) {
+                alert("Por favor, completa correctamente los campos antes de guardar.");
+                return;
+            }
+
+            try {
+                // Importamos updateDoc dinámicamente o usamos el módulo global si está disponible
+                const { updateDoc, doc } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js");
+                const productRef = doc(window.db, "perfumes", id);
+                
+                await updateDoc(productRef, {
+                    name: newName,
+                    price: newPrice,
+                    stock: newStock
+                });
+
+                alert("¡Cambios guardados con éxito en la nube!");
+            } catch (error) {
+                console.error("Error al actualizar:", error);
+                alert("Hubo un error al actualizar el artículo.");
             }
         }
     </script>
