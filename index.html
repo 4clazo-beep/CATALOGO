@@ -421,7 +421,7 @@ document.addEventListener('DOMContentLoaded', initBackgroundSlider);
             renderAdminList();
         }
 
-      function renderAdminList() {
+     function renderAdminList() {
             const adminList = document.getElementById('adminProductList');
             if (!adminList) return;
             adminList.innerHTML = '';
@@ -429,35 +429,57 @@ document.addEventListener('DOMContentLoaded', initBackgroundSlider);
             window.products.forEach(p => {
                 const currentStock = p.stock !== undefined ? p.stock : 1;
                 const row = document.createElement('div');
-                row.className = 'bg-darkBg p-3 rounded-xl border border-gold-900/20 space-y-2';
+                row.className = 'bg-darkBg p-4 rounded-xl border border-gold-900/30 space-y-3';
                 row.innerHTML = `
                     <div class="flex items-center justify-between gap-2">
-                        <div class="w-10 h-10 bg-black/40 rounded-lg flex items-center justify-center overflow-hidden p-1 flex-shrink-0">
-                            <img src="${p.image}" class="max-h-full max-w-full object-contain">
+                        <div class="w-12 h-12 bg-black/40 rounded-lg flex items-center justify-center overflow-hidden p-1 flex-shrink-0 border border-gold-900/20">
+                            <img src="${p.image}" id="preview-img-${p.id}" class="max-h-full max-w-full object-contain">
                         </div>
-                        <input type="text" id="edit-name-${p.id}" value="${p.name}" class="w-full bg-cardBg border border-gold-900/40 rounded-lg px-2 py-1 text-xs text-white">
-                        <button onclick="deleteProduct('${p.id}')" class="text-red-400 hover:text-red-300 text-xs px-2.5 py-1.5 bg-red-950/40 rounded-lg flex-shrink-0" title="Eliminar artículo">
+                        <div class="w-full">
+                            <label class="block text-[9px] text-gray-400">Nombre del Perfume</label>
+                            <input type="text" id="edit-name-${p.id}" value="${p.name}" class="w-full bg-cardBg border border-gold-900/40 rounded-lg px-2.5 py-1 text-xs text-white">
+                        </div>
+                        <button onclick="deleteProduct('${p.id}')" class="text-red-400 hover:text-red-300 text-xs px-3 py-2 bg-red-950/40 rounded-lg flex-shrink-0 self-end" title="Eliminar artículo">
                             <i class="fa-solid fa-trash"></i>
                         </button>
                     </div>
-                    <div class="grid grid-cols-2 gap-2">
+
+                    <div class="grid grid-cols-3 gap-2">
+                        <div>
+                            <label class="block text-[9px] text-gray-400">Categoría</label>
+                            <select id="edit-category-${p.id}" class="w-full bg-cardBg border border-gold-900/40 rounded-lg px-2 py-1 text-xs text-gray-200">
+                                <option value="Femenino" ${p.category === 'Femenino' ? 'selected' : ''}>Femenino</option>
+                                <option value="Masculino" ${p.category === 'Masculino' ? 'selected' : ''}>Masculino</option>
+                                <option value="Unisex" ${p.category === 'Unisex' ? 'selected' : ''}>Unisex</option>
+                            </select>
+                        </div>
                         <div>
                             <label class="block text-[9px] text-gray-400">Precio ($)</label>
-                            <input type="number" id="edit-price-${p.id}" step="0.01" value="${p.price}" class="w-full bg-cardBg border border-gold-900/40 rounded-lg px-2 py-1 text-xs text-gold-300">
+                            <input type="number" id="edit-price-${p.id}" step="0.01" value="${p.price}" class="w-full bg-cardBg border border-gold-900/40 rounded-lg px-2.5 py-1 text-xs text-gold-300">
                         </div>
                         <div>
-                            <label class="block text-[9px] text-gray-400">Stock / Unidades</label>
-                            <input type="number" id="edit-stock-${p.id}" min="0" value="${currentStock}" class="w-full bg-cardBg border border-gold-900/40 rounded-lg px-2 py-1 text-xs text-gold-300">
+                            <label class="block text-[9px] text-gray-400">Unidades</label>
+                            <input type="number" id="edit-stock-${p.id}" min="0" value="${currentStock}" class="w-full bg-cardBg border border-gold-900/40 rounded-lg px-2.5 py-1 text-xs text-gold-300">
                         </div>
                     </div>
-                    <button onclick="updateProduct('${p.id}')" class="w-full bg-gold-600 hover:bg-gold-500 text-black font-semibold py-1.5 rounded-lg text-xs mt-1 transition-colors">
-                        <i class="fa-solid fa-floppy-disk mr-1"></i> Guardar Cambios
+
+                    <div>
+                        <label class="block text-[9px] text-gray-400">Descripción y notas olfativas</label>
+                        <textarea id="edit-desc-${p.id}" rows="2" class="w-full bg-cardBg border border-gold-900/40 rounded-lg px-2.5 py-1 text-xs text-gray-200 resize-none">${p.desc || ''}</textarea>
+                    </div>
+
+                    <div>
+                        <label class="block text-[9px] text-gray-400">Reemplazar imagen (Opcional):</label>
+                        <input type="file" id="edit-image-file-${p.id}" accept="image/*" class="w-full text-xs text-gray-400 border border-gold-900/40 rounded-lg p-1.5 bg-cardBg">
+                    </div>
+
+                    <button onclick="updateProduct('${p.id}')" id="update-btn-${p.id}" class="w-full bg-gold-600 hover:bg-gold-500 text-black font-semibold py-2 rounded-lg text-xs transition-colors shadow-md">
+                        <i class="fa-solid fa-floppy-disk mr-1"></i> Guardar Todos los Cambios
                     </button>
                 `;
                 adminList.appendChild(row);
             });
         }
-
         // Función auxiliar para comprimir imágenes grandes de móviles antes de subirlas
         function compressImage(file, maxWidth = 600, quality = 0.7) {
             return new Promise((resolve) => {
@@ -533,31 +555,54 @@ document.addEventListener('DOMContentLoaded', initBackgroundSlider);
                 await window.deleteDoc(window.doc(window.db, "perfumes", id));
             }
         }
-        async function updateProduct(id) {
+       async function updateProduct(id) {
+            const updateBtn = document.getElementById(`update-btn-${id}`);
+            updateBtn.disabled = true;
+            updateBtn.textContent = "Actualizando en la nube...";
+
             const newName = document.getElementById(`edit-name-${id}`).value.trim();
+            const newCategory = document.getElementById(`edit-category-${id}`).value;
             const newPrice = parseFloat(document.getElementById(`edit-price-${id}`).value);
             const newStock = parseInt(document.getElementById(`edit-stock-${id}`).value);
+            const newDesc = document.getElementById(`edit-desc-${id}`).value.trim();
+            const fileInput = document.getElementById(`edit-image-file-${id}`);
 
-            if (!newName || isNaN(newPrice) || isNaN(newStock)) {
-                alert("Por favor, completa correctamente los campos antes de guardar.");
+            if (!newName || isNaN(newPrice) || isNaN(newStock) || !newDesc) {
+                alert("Por favor, completa correctamente todos los campos obligatorios.");
+                updateBtn.disabled = false;
+                updateBtn.textContent = "Guardar Todos los Cambios";
                 return;
             }
 
             try {
-                // Importamos updateDoc dinámicamente o usamos el módulo global si está disponible
                 const { updateDoc, doc } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js");
                 const productRef = doc(window.db, "perfumes", id);
                 
+                // Buscar el producto actual para conservar su imagen si no se selecciona una nueva
+                const currentProduct = window.products.find(p => p.id === id);
+                let imageUrl = currentProduct ? currentProduct.image : '';
+
+                // Si el usuario subió una foto nueva para reemplazar la anterior, la comprimimos
+                if (fileInput.files && fileInput.files[0]) {
+                    imageUrl = await compressImage(fileInput.files[0]);
+                }
+
                 await updateDoc(productRef, {
                     name: newName,
+                    category: newCategory,
                     price: newPrice,
-                    stock: newStock
+                    stock: newStock,
+                    desc: newDesc,
+                    image: imageUrl
                 });
 
-                alert("¡Cambios guardados con éxito en la nube!");
+                alert("¡Información del producto actualizada por completo en la nube con éxito!");
             } catch (error) {
                 console.error("Error al actualizar:", error);
                 alert("Hubo un error al actualizar el artículo.");
+            } finally {
+                updateBtn.disabled = false;
+                updateBtn.textContent = "Guardar Todos los Cambios";
             }
         }
     </script>
