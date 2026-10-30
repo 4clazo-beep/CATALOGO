@@ -452,13 +452,12 @@ document.addEventListener('DOMContentLoaded', initBackgroundSlider);
                   : `<span class="text-[10px] bg-red-950/80 text-red-400 border border-red-500/30 px-2 py-0.5 rounded-full">Agotado</span>`;
 
               const waMessage = encodeURIComponent(`Hola, me interesa adquirir la fragancia "${p.name}" (Unidades disponibles: ${stockCount}) por $${Number(p.price).toLocaleString('es-CO')}. ¿Está disponible?`);
-                const card = document.createElement('div');
-                card.className = 'bg-cardBg border border-gold-900/30 rounded-2xl overflow-hidden p-4 flex flex-col justify-between';
+               const card = document.createElement('div');
+                card.className = 'bg-cardBg border border-gold-900/30 rounded-2xl overflow-hidden p-4 flex flex-col justify-between transition-all duration-500 hover:scale-[1.03] hover:shadow-[0_10px_30px_rgba(197,142,43,0.15)] hover:border-gold-500/60 group';
                 card.innerHTML = `
                     <div>
                         <div class="w-full h-60 bg-black/40 rounded-xl mb-3 flex items-center justify-center overflow-hidden p-2 border border-gold-900/10 relative">
-                            <img src="${p.image}" alt="${p.name}" class="max-h-full max-w-full object-contain" onerror="this.src='https://placehold.co/400x400/13131a/c58e2b?text=Perfume'">
-                            <div class="absolute top-2 right-2">${stockBadge}</div>
+                            <img src="${p.image}" alt="${p.name}" class="max-h-full max-w-full object-contain transition-transform duration-700 group-hover:scale-110" onerror="this.src='https://placehold.co/400x400/13131a/c58e2b?text=Perfume'">
                         </div>
                         <span class="text-[10px] text-gold-400 uppercase tracking-widest">${p.category}</span>
                         <h3 class="text-lg font-serif text-white mt-1">${p.name}</h3>
