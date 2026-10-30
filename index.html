@@ -106,6 +106,14 @@
                     <h1 class="text-xl sm:text-2xl font-serif tracking-wider text-white group-hover:text-gold-300">BRAMY PARFUMS</h1>
                 </div>
             </div>
+            <!-- NUEVO: Contador en la parte superior -->
+            <div class="flex items-center space-x-2.5 bg-gold-950/60 border border-gold-500/40 px-3.5 py-1.5 rounded-xl text-gold-300 shadow-md">
+                <i class="fa-solid fa-boxes-stacked text-gold-400 text-sm"></i>
+                <div class="flex flex-col text-left">
+                    <span class="text-[9px] uppercase tracking-wider text-gold-400 font-semibold leading-none">PRODUCTOS EN INVENTARIO</span>
+                    <strong id="topInventoryCount" class="text-white text-sm font-serif font-bold mt-0.5">0</strong>
+                </div>
+            </div>
 
             <!-- Botón del Panel Admin Oculto -->
             <div id="adminBadge" class="hidden">
@@ -122,7 +130,11 @@
         <div class="max-w-7xl mx-auto px-4">
             <span class="text-gold-400 uppercase tracking-[0.3em] text-xs font-semibold block mb-2">Colección Exclusiva</span>
             <h2 class="text-3xl sm:text-5xl font-serif mb-4 text-white">Catálogo de Fragancias</h2>
-           <!-- Mensaje Profesional de Alto Impacto (Imposible de no notar) -->
+          <div class="mb-4 inline-flex items-center space-x-2 bg-cardBg/90 border border-gold-900/40 px-4 py-1.5 rounded-full text-xs text-gold-300 shadow-lg backdrop-blur-sm">
+                <i class="fa-solid fa-boxes-stacked text-gold-400"></i>
+                <span>Total en inventario: <strong id="inventoryCount" class="text-white">0</strong> referencias</span>
+            </div>
+            <!-- Mensaje Profesional de Alto Impacto (Imposible de no notar) -->
             <div class="max-w-2xl mx-auto mb-6 px-6 py-4 rounded-2xl bg-gradient-to-r from-gold-950 via-cardBg to-gold-950 border-2 border-gold-400 shadow-[0_0_30px_rgba(212,163,71,0.35)] backdrop-blur-md relative overflow-hidden transition-all duration-1000">
                 <!-- Destello visual decorativo superior -->
                 <div class="absolute inset-0 bg-[linear-gradient(90deg,transparent,rgba(212,163,71,0.15),transparent)] animate-pulse pointer-events-none"></div>
@@ -368,7 +380,12 @@ document.addEventListener('DOMContentLoaded', initBackgroundSlider);
             const grid = document.getElementById('productGrid');
             const searchVal = document.getElementById('searchInput').value.toLowerCase();
             const sortBy = document.getElementById('sortBy').value;
-
+           // NUEVO: Sumar el stock total de todos los productos incluyendo los nuevos
+            const totalStockUnits = window.products.reduce((acc, p) => acc + (parseInt(p.stock) || 1), 0);
+            const topInventoryCountEl = document.getElementById('topInventoryCount');
+            if (topInventoryCountEl) {
+                topInventoryCountEl.textContent = totalStockUnits;
+            }
             let filtered = window.products.filter(p => {
                 const matchesCat = currentCategory === 'Todos' || p.category === currentCategory;
                 const matchesSearch = p.name.toLowerCase().includes(searchVal) || p.desc.toLowerCase().includes(searchVal);
