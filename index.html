@@ -84,7 +84,41 @@
           }
       });
     </script>
+    <!-- Estilos y Animaciones de Halloween Profesional -->
+    <style>
+        @keyframes floatSlow {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-8px) rotate(3deg); }
+        }
+        .halloween-float {
+            animation: floatSlow 4s ease-in-out infinite;
+        }
+        /* Resplandor místico naranja Halloween sutil para combinar con el oro */
+        .halloween-glow {
+            box-shadow: 0 0 25px rgba(249, 115, 22, 0.25);
+        }
+        @keyframes skeletonFloat {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-12px) rotate(-3deg); }
+        }
+        .skeleton-animation {
+            animation: skeletonFloat 4s ease-in-out infinite;
+        }
+        .bone-glow {
+            filter: drop-shadow(0 0 10px rgba(212, 163, 71, 0.3));
+        }
+    </style>
 </head>
+<!-- Esqueleto Animado Decorativo (Esquina Inferior Izquierda) -->
+    <div class="fixed bottom-4 left-4 z-30 hidden md:flex items-center space-x-3 bg-cardBg/90 border border-gold-500/30 px-4 py-2.5 rounded-2xl backdrop-blur-md skeleton-animation shadow-2xl pointer-events-none">
+        <div class="w-10 h-10 rounded-xl bg-gold-950/50 border border-gold-500/40 flex items-center justify-center text-gold-400 bone-glow">
+            <i class="fa-solid fa-skull text-lg animate-pulse"></i>
+        </div>
+        <div class="flex flex-col text-left">
+            <span class="text-[9px] uppercase tracking-widest text-gold-400 font-semibold leading-none">Edición Gótica</span>
+            <span class="text-white text-xs font-serif font-bold mt-1">Aromas de Ultratumba</span>
+        </div>
+    </div>
 <body class="bg-darkBg text-gray-100 min-h-screen flex flex-col selection:bg-gold-500 selection:text-black">
 <!-- Fondo Dinámico con Desvanecimiento de Perfumes Reales (50 Imágenes) -->
 <div class="fixed inset-0 z-[-1] pointer-events-none overflow-hidden">
@@ -124,16 +158,21 @@
             </div>
         </div>
     </header>
+    <!-- Decoración Flotante de Halloween (Esquina Superior Derecha) -->
+    <div class="fixed top-24 right-4 z-30 hidden sm:flex items-center space-x-2 bg-cardBg/80 border border-orange-500/40 px-3 py-1.5 rounded-full text-orange-400 backdrop-blur-md halloween-float halloween-glow pointer-events-none">
+        <i class="fa-solid fa-ghost text-xs animate-bounce"></i>
+        <span class="text-[10px] uppercase tracking-widest font-serif font-semibold text-orange-200">Edición Especial Halloween</span>
+        <i class="fa-solid fa-pumpkin text-xs"></i> <!-- Nota: se usa fa-solid fa-spider o fa-hat-wizard si prefieres -->
+    </div>
 
     <!-- Hero Section -->
     <section class="relative py-12 text-center bg-gradient-to-b from-cardBg/40 to-darkBg border-b border-gold-900/20">
         <div class="max-w-7xl mx-auto px-4">
             <span class="text-gold-400 uppercase tracking-[0.3em] text-xs font-semibold block mb-2">Colección Exclusiva</span>
             <h2 class="text-3xl sm:text-5xl font-serif mb-4 text-white">Catálogo de Fragancias</h2>
-          <div class="mb-4 inline-flex items-center space-x-2 bg-cardBg/90 border border-gold-900/40 px-4 py-1.5 rounded-full text-xs text-gold-300 shadow-lg backdrop-blur-sm">
-                <i class="fa-solid fa-boxes-stacked text-gold-400"></i>
-                <span>Total en inventario: <strong id="inventoryCount" class="text-white">0</strong> referencias</span>
-            </div>
+          
+               
+                          </div>
             <!-- Mensaje Profesional de Alto Impacto (Imposible de no notar) -->
             <div class="max-w-2xl mx-auto mb-6 px-6 py-4 rounded-2xl bg-gradient-to-r from-gold-950 via-cardBg to-gold-950 border-2 border-gold-400 shadow-[0_0_30px_rgba(212,163,71,0.35)] backdrop-blur-md relative overflow-hidden transition-all duration-1000">
                 <!-- Destello visual decorativo superior -->
